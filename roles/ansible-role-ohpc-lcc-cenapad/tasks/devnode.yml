@@ -1,0 +1,57 @@
+---
+# OpenHPC Development Components
+- name: Build package facts
+  package_facts:
+    manager: rpm
+
+- name: debug
+  debug:
+    msg: "OHPC version: {{ ansible_facts.packages['ohpc-release'][0].version }}"
+
+# Development tools
+- name: Install development tools - GNU
+  yum:
+    name:
+      - ohpc-autotools
+      - hwloc-ohpc
+      - valgrind-ohpc
+      - EasyBuild-ohpc
+      - spack-ohpc
+      - R_base-ohpc
+      - docs-ohpc
+      - lmod-ohpc
+    state: present
+    update_cache: true
+
+- name: Install default Environment module system - GNU
+  yum:
+    name: "lmod-defaults-{{ gnu_toolchain | default('gnu8') }}-{{ mpi_stack | default('openmpi3') }}-ohpc"
+    state: present
+    update_cache: True
+
+- name: Install all OpenHPC GNU compiler families
+  yum:
+    name: 
+      - gnu-compilers-ohpc
+      - gnu7-compilers-ohpc
+      - gnu8-compilers-ohpc
+    state: present
+
+# LLVM4 is deprecated
+- name: Install all OpenHPC LLVM compiler families
+  yum:
+    name: llvm5-compilers-ohpc
+    state: present
+
+- name: Install Intel gnu_toolchain
+  yum:
+    name: intel-compilers-devel-ohpc
+    state: present 
+  when:
+    - enable_intel_packages == true
+
+# IO Libraries
+# @ohpc-io-libs-gnu
+# - name: Install IO libraries - GNU
+#   yum:
+#     name:

@@ -1,0 +1,26 @@
+---
+- name: Show hostname visiting common.yml
+  debug:
+    msg: "common.yml: {{ inventory_hostname }}"
+
+- name: Install basic packages for OHPC installation (perl/dhcp/firewalld)
+  yum:
+    name:
+      - perl
+      - dhcp
+      - firewalld
+    state: present
+  check_mode: true
+
+- name: Disable firewalld on boot
+  ansible.builtin.service:
+    name: firewalld
+    enabled: no
+  check_mode: true
+
+- name: Stop firewalld if running
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+  check_mode: true
+

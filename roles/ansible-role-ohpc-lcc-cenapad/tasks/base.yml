@@ -1,0 +1,17 @@
+---
+- name: Show hostname visiting base.yml
+  debug:
+    msg: "base.yml: {{ inventory_hostname }}"
+
+- name: Build package facts
+  package_facts:
+    manager: rpm
+
+- name: Add baseline and provisioning services on master node
+  yum:
+    name:
+      - ohpc-base
+      - ohpc-warewulf
+    state: present
+    update_cache: True
+  check_mode: false

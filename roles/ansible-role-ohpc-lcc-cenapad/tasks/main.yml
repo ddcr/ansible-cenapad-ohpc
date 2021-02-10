@@ -1,0 +1,81 @@
+---
+# tasks file for ansible-role-ohpc-lcc-cenapad
+- name: Build package facts
+  package_facts:
+    manager: rpm
+
+- name: Install ohpc-release package from official channel
+  yum:
+    name: "{{ ohpc_release_repo | default(ohpc_release_repos[ansible_distribution_major_version]) }}"
+    state: present
+    update_cache: true
+    disable_gpg_check: True
+  notify: yum-clean-metadata
+  when:
+    - "'ohpc-release' not in ansible_facts.packages"
+    - (ohpc_lcc_repos is not defined) or (ohpc_lcc_repos|length > 0)
+
+- block:
+    - name: Install ohpc-release package from LCC-CENAPAD
+      yum:
+        name: "{{ ohpc_lcc_repos.ohpc_release_repo | mandatory }}"
+        state: present
+        update_cache: true
+        disable_gpg_check: true
+
+    - name: Disable any existing official OpenHPC repositories
+      yum_repository:
+        name: "{{ item }}"
+        state: absent
+        file: OpenHPC
+      loop:
+        - OpenHPC
+        - OpenHPC-updates
+
+    - name: Enable the LCC-CENAPAD OpenHPC repositories
+      yum_repository:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default('LCC-CENAPAP ohpc repository') }}"
+        file: "{{ ohpc_lcc_repos.yumfile | default('OpenHPC') }}"
+        baseurl: "{{ item.baseurl }}"
+        gpgkey: "{{ item.gpgkey | default(omit) }}"
+        gpgcheck: no
+      loop: "{{ ohpc_lcc_repos.yum_repos }}"
+  rescue:
+    # difficult to make it idempotent
+    - name: Remove LCC-CENAPAD leftover repo file if exists
+      ansible.builtin.file:
+        path: "/etc/yum.repos.d/{{ ohpc_lcc_repos.yumfile | default('OpenHPC') }}"
+        state: absent
+
+    - name: Remove ohpc-release package
+      yum:
+        name: ohpc-release
+        state: absent
+
+    - name: Failover - reinstall ohpc-release package
+      yum:
+        name: "{{ ohpc_release_repo | default(ohpc_release_repos[ansible_distribution_major_version]) }}"
+        state: present
+        update_cache: true
+        disable_gpg_check: true
+      notify: yum-clean-metadata
+  when: (ohpc_lcc_repos is defined) and (ohpc_lcc_repos|length > 0)
+
+# - name: debug
+#   debug:
+#     msg: "OHPC version: {{ ansible_facts.packages['ohpc-release'][0].version }}"
+
+- include: common.yml
+  when: 
+    ( openhpc_enable.control | default(false) | bool ) or
+    ( openhpc_enable.devel | default(false) | bool ) or
+    ( (openhpc_enable.compute | default(false) | bool ) and enable_warewulf == false )
+
+- include: base.yml
+  when:
+    ( openhpc_enable.control | default(false) | bool ) or
+    ( openhpc_enable.devel | default(false) | bool )
+
+# - include: devnode.yml
+#   when: openhpc_enable.devel | default(false) | bool

@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: ohpc_lcc_cenapad
+  author: Domingos Rodrigues
+  description: Installation of OpenHPC development libraries
+  company: LCC-CENAPAD/MG
+  license: GPL-2.0-or-later
+  min_ansible_version: 2.9
+  platforms:
+    - name: EL
+      versions:
+      - 7
+  galaxy_tags:
+    - ohpc
+    - slurm
+
+dependencies: []
+  # List your role dependencies here, one per line. Be sure to remove the '[]' above,
+  # if you add dependencies to this list.

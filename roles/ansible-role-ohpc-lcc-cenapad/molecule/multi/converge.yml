@@ -1,0 +1,14 @@
+---
+- name: Converge
+  hosts: all
+
+  tasks:
+    - name: "Include ansible-role-ohpc-lcc-cenapad"
+      include_role:
+        name: "ansible-role-ohpc-lcc-cenapad"
+      vars:
+        enable_warewulf: false
+        openhpc_enable:
+          control: "{{ groups['sms'] is defined and (inventory_hostname in groups['sms']) }}"
+          devel: "{{ groups['devnodes'] is defined and (inventory_hostname in groups['devnodes']) }}"
+          compute: "{{ groups['cnodes'] is defined and (inventory_hostname in groups ['cnodes']) }}"

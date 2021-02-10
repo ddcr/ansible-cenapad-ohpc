@@ -1,0 +1,39 @@
+---
+# defaults file for ansible-role-ohpc-lcc-cenapad
+openhpc_enable:     # enable:
+  devel:  false     # development host
+  control: false    # control host
+  database: false   # slurmdbd
+  compute: false      # compute nodes
+  runtime: false    # OpenHPC runtimes (eg. singularity)
+openhpc_cluster_name: "avicena"
+openhpc_packages: []
+
+# list of dictionaries
+compute_nodes: []
+enable_warewulf: false
+
+ohpc_release_repos:
+  "7": "https://github.com/openhpc/ohpc/releases/download/v1.3.GA/ohpc-release-1.3-1.el7.x86_64.rpm" # ohpc v1.3 for Centos 7
+  "8": "http://repos.openhpc.community/OpenHPC/2/CentOS_8/x86_64/ohpc-release-2-1.el8.x86_64.rpm" # ohpc v2 for Centos 8
+
+ohpc_lcc_repos:
+  ohpc_release_repo: "http://150.164.66.69/lccrepo/OpenHPC/CentOS_7/x86_64/ohpc-release-1.3-1.el7.x86_64.rpm"
+  yum_repos:
+    - name: OpenHPC-local
+      description: "OpenHPC-1.3 - Base"
+      baseurl: "http://150.164.66.69/lccrepo/OpenHPC/CentOS_7"
+      gpgkey: "http://150.164.66.69/lccrepo/OpenHPC/CentOS_7/repodata/repomd.xml.key"
+    - name: OpenHPC-local-updates
+      description: "OpenHPC-1.3 - Updates"
+      baseurl: "http://150.164.66.69/lccrepo/OpenHPC/CentOS_7/updates"
+
+# Needs Parallel Studio XE compiler (min ver 16.0)
+enable_intel_packages: false
+
+# Slurm stuff below
+# Slurm services
+# openhpc_slurm_service_enabled:
+# openhpc_slurm_service_started:
+# openhpc_slurm_control_host:
+# variables related to slurm.conf and slurmdbd.conf
