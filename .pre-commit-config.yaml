@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: conventional-pre-commit
+        name: Conventional Commit
+        entry: conventional-pre-commit.sh
+        language: script
+        always_run: true
+        stages: [commit-msg]
